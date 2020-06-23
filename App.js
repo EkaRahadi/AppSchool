@@ -1,67 +1,53 @@
-/**
- * Sample React Native App with Firebase
- * https://github.com/invertase/react-native-firebase
- *
- * @format
- * @flow
- */
-
 import React, { Component } from 'react';
-import { Platform, StyleSheet, Text, View } from 'react-native';
+import { View, Text } from 'react-native';
+import OneSignal from 'react-native-onesignal'; // Import package from node modules
+import Login from './src/screens/Login';
 
-import firebase from '@react-native-firebase/app';
+export default class App extends Component {
+  constructor(props) {
+    super(props);
+    // Replace 'YOUR_ONESIGNAL_APP_ID' with your OneSignal App ID.
+    OneSignal.init("ab171d32-7243-4d81-b770-6f8dd0a78346", {
+      kOSSettingsKeyAutoPrompt: false,
+      kOSSettingsKeyInAppLaunchURL: false,
+      kOSSettingsKeyInFocusDisplayOption: 2
+    });
+    OneSignal.inFocusDisplaying(2);
 
-// TODO(you): import any additional firebase services that you require for your app, e.g for auth:
-//    1) install the npm package: `yarn add @react-native-firebase/auth@alpha` - you do not need to
-//       run linking commands - this happens automatically at build time now
-//    2) rebuild your app via `yarn run run:android` or `yarn run run:ios`
-//    3) import the package here in your JavaScript code: `import '@react-native-firebase/auth';`
-//    4) The Firebase Auth service is now available to use here: `firebase.auth().currentUser`
+    OneSignal.addEventListener("received", this.onReceived);
+    OneSignal.addEventListener("opened", this.onOpened);
+    OneSignal.addEventListener("ids", this.onIds);
+  }
 
-const instructions = Platform.select({
-  ios: 'Press Cmd+R to reload,\nCmd+D or shake for dev menu',
-  android: 'Double tap R on your keyboard to reload,\nShake or press menu button for dev menu',
-});
+  componentWillUnmount() {
+    OneSignal.removeEventListener("received", this.onReceived);
+    OneSignal.removeEventListener("opened", this.onOpened);
+    OneSignal.removeEventListener("ids", this.onIds);
+  }
 
-const firebaseCredentials = Platform.select({
-  ios: 'https://invertase.link/firebase-ios',
-  android: 'https://invertase.link/firebase-android',
-});
+  onReceived(notification) {
+    console.log("Notification received: ", notification);
+  }
 
-type Props = {};
+  onOpened(openResult) {
+    console.log("Message: ", openResult.notification.payload.body);
+    console.log("Data: ", openResult.notification.payload.additionalData);
+    console.log("isActive: ", openResult.notification.isAppInFocus);
+    console.log("openResult: ", openResult);
+  }
 
-export default class App extends Component<Props> {
+  onIds(device) {
+    console.log("Device info: ", device);
+  }
+
   render() {
     return (
-      <View style={styles.container}>
-        <Text style={styles.welcome}>Welcome to React Native + Firebase!</Text>
-        <Text style={styles.instructions}>To get started, edit App.js</Text>
-        <Text style={styles.instructions}>{instructions}</Text>
-        {!firebase.apps.length && (
-          <Text style={styles.instructions}>
-            {`\nYou currently have no Firebase apps registered, this most likely means you've not downloaded your project credentials. Visit the link below to learn more. \n\n ${firebaseCredentials}`}
-          </Text>
-        )}
+      // <View style={{ justifyContent: "center", alignItems: "center", flex: 1 }}>
+      //   <Text>Hello One Signal</Text>
+      // </View>
+      <View style={{flex:1}}>
+        <Login/>
       </View>
     );
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
-});
