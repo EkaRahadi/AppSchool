@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { View, Text } from 'react-native';
 import OneSignal from 'react-native-onesignal'; // Import package from node modules
 import Login from './src/screens/Login';
+import Home from './src/screens/Home';
 
 export default class App extends Component {
   constructor(props) {
@@ -46,7 +47,7 @@ export default class App extends Component {
       //   <Text>Hello One Signal</Text>
       // </View>
       <View style={{flex:1}}>
-        <Login/>
+        <Home/>
       </View>
     );
   }
